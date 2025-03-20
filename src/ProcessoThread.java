@@ -16,7 +16,7 @@ public class ProcessoThread extends Thread {
 
     }
 
-    public void usaRecurso(Integer idRecurso, CoordenadorThread coordenadorThread) {
+    public void usaRecurso(long idRecurso, CoordenadorThread coordenadorThread) {
        // try {
             int tempoUso = ThreadLocalRandom.current().nextInt(5000, 15000);
             System.out.println("Processo " + id + " está usando o recurso " + idRecurso + " por " + tempoUso + " ms.");

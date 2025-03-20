@@ -66,10 +66,10 @@ public class Main {
             if (!threads.isEmpty()) {
                 // Escolher um processo aleatório
                 Random rand = new Random();
-                Integer idProcesso = (Integer) threads.keySet().toArray()[rand.nextInt(threads.size())];
+                long idProcesso = (long) threads.keySet().toArray()[rand.nextInt(threads.size())];
                 ProcessoThread processoThread = threads.get(idProcesso);
 
-                int recursoASerSolicitado = ThreadLocalRandom.current().nextInt(1, 3);
+                long recursoASerSolicitado = ThreadLocalRandom.current().nextLong(1, 3);
 
                 // Verifica se o recurso está disponível
                 String retorno = coordenadorThread.verificaRecurso(recursoASerSolicitado, idProcesso);
