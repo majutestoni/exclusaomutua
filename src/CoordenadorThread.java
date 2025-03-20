@@ -39,11 +39,9 @@ public class CoordenadorThread extends ProcessoThread {
 
         List<Long> solicitantes = recursosSolicitados.get(idRecurso);
         if (solicitantes != null && !solicitantes.isEmpty()) {
-            // Libera o recurso para o próximo processo da fila
-            long proximoProcesso = solicitantes.remove(0); // Pega o próximo processo na fila
+            long proximoProcesso = solicitantes.remove(0);
             recursosSolicitados.put(idRecurso, solicitantes);
 
-            // Atribui o recurso ao próximo processo
             recursosEmUso.put(idRecurso, proximoProcesso);
             System.out.println("Recurso " + idRecurso + " foi liberado para o processo " + proximoProcesso);
         }

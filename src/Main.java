@@ -64,23 +64,18 @@ public class Main {
         // Para recurso ser solicitado
         scheduler.scheduleAtFixedRate(() -> {
             if (!threads.isEmpty()) {
-                // Escolher um processo aleatório
                 Random rand = new Random();
                 long idProcesso = (long) threads.keySet().toArray()[rand.nextInt(threads.size())];
                 ProcessoThread processoThread = threads.get(idProcesso);
 
                 long recursoASerSolicitado = ThreadLocalRandom.current().nextLong(1, 3);
 
-                // Verifica se o recurso está disponível
                 String retorno = coordenadorThread.verificaRecurso(recursoASerSolicitado, idProcesso);
 
                 if (retorno != null) {
-                    // Se o recurso estiver disponível, usa-o
                     processoThread.usaRecurso(recursoASerSolicitado, coordenadorThread);
                 } else {
-                    // Se o recurso está ocupado, o processo será colocado na fila e tentará novamente
                     System.out.println("Recurso " + recursoASerSolicitado + " está ocupado. Processo " + idProcesso + " tentará novamente.");
-                    // Reagendar a tentativa para o processo, sem bloquear o sistema
                 }
             }
         }, 1, 6, TimeUnit.SECONDS);
