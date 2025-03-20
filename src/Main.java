@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Main {
     private static CoordenadorThread coordenadorThread;
-    static Map<Integer, ProcessoThread> threads = new HashMap<>();
+    static Map<Integer, Thread> threads = new HashMap<>();
     static HashMap<Integer, Integer> recursosEmUso = new HashMap<>();
 
     public static void main(String[] args) {
@@ -18,21 +18,29 @@ public class Main {
         int primeiroId = ThreadLocalRandom.current().nextInt(1, 1000);
         ProcessoThread primeiraProcessoThread = new ProcessoThread(primeiroId);
         coordenadorThread = new CoordenadorThread(primeiroId, recursosEmUso);
-        threads.put(primeiroId, primeiraProcessoThread);
-        Thread primeiraThread = new Thread(primeiraProcessoThread);
-        primeiraThread.start();
+
+        Thread thread = new Thread(() -> { 
+            primeiraProcessoThread.IniciaThread(coordenadorThread,scheduler);
+        });
+
+        thread.start();
+        threads.put(primeiroId, thread);
 
         // Scheduler usado para criar threads
         scheduler.scheduleAtFixedRate(() -> {
             int novoId = ThreadLocalRandom.current().nextInt(1, 1000);
+            
             while (threads.containsKey(novoId)) {
                 novoId = ThreadLocalRandom.current().nextInt(1, 1000);
             }
 
-            ProcessoThread novoProcessoThread = new ProcessoThread(novoId);
-            threads.put(novoId, novoProcessoThread);
-            Thread thread = new Thread(novoProcessoThread);
-            thread.start();
+            Thread t = new Thread(() -> { 
+                primeiraProcessoThread.IniciaThread(coordenadorThread,scheduler);
+            });
+
+            threads.put(novoId, t);
+
+            t.start();
             System.out.println("Nova thread: " + novoId);
         }, 1, 5, TimeUnit.SECONDS);
 
@@ -57,31 +65,6 @@ public class Main {
                 }
             }
         }, 1, 20, TimeUnit.SECONDS);
-
-
-        // Para recurso ser solicitado
-        scheduler.scheduleAtFixedRate(() -> {
-            if (!threads.isEmpty()) {
-                // Escolher um processo aleatório
-                Random rand = new Random();
-                Integer idProcesso = (Integer) threads.keySet().toArray()[rand.nextInt(threads.size())];
-                ProcessoThread processoThread = threads.get(idProcesso);
-
-                int recursoASerSolicitado = ThreadLocalRandom.current().nextInt(1, 3);
-
-                // Verifica se o recurso está disponível
-                String retorno = coordenadorThread.verificaRecurso(recursoASerSolicitado, idProcesso);
-
-                if (retorno != null) {
-                    // Se o recurso estiver disponível, usa-o
-                    processoThread.usaRecurso(recursoASerSolicitado, coordenadorThread);
-                } else {
-                    // Se o recurso está ocupado, o processo será colocado na fila e tentará novamente
-                    System.out.println("Recurso " + recursoASerSolicitado + " está ocupado. Processo " + idProcesso + " tentará novamente.");
-                    // Reagendar a tentativa para o processo, sem bloquear o sistema
-                }
-            }
-        }, 1, 6, TimeUnit.SECONDS);
 
 
         // Scheduler usado para definir o tempo de execução do programa
