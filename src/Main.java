@@ -50,7 +50,7 @@ public class Main {
                 // Verifica se ainda há threads e seleciona uma nova thread aleatória como coordenadora
                 if (!threads.isEmpty()) {
                     Random rand = new Random();
-                    Integer idNovoCoordenador = (Integer) threads.keySet().toArray()[rand.nextInt(threads.size())];
+                    long idNovoCoordenador = (long) threads.keySet().toArray()[rand.nextInt(threads.size())];
                     coordenadorThread = new CoordenadorThread(idNovoCoordenador, recursosEmUso);
 
                     System.out.println("Novo coordenador: " + idNovoCoordenador);
