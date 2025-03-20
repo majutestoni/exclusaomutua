@@ -15,6 +15,10 @@ public class Recurso {
         this.thread = thread;
     }
 
+    public boolean possuiThread() {
+        return thread != null;
+    }
+
     public int getId() {
         return id;
     }
