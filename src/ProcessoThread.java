@@ -1,21 +1,19 @@
 import java.util.concurrent.ThreadLocalRandom;
 
-public class ProcessoThread implements Runnable {
+public class ProcessoThread extends Thread {
     private int id;
 
     public ProcessoThread(int id) {
         this.id = id;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
     @Override
     public void run() {
-        synchronized (ProcessoThread.class) {
-            System.out.println("Nova thread: " + id);
-        }
+
     }
 
     public void usaRecurso(Integer idRecurso, CoordenadorThread coordenadorThread) {
@@ -35,7 +33,7 @@ public class ProcessoThread implements Runnable {
 
         } catch (InterruptedException e) {
             // Caso o processo seja interrompido, ele deve parar o uso do recurso
-            System.out.println("Processo " + id + " foi interrompido enquanto usava o recurso.");
+       //     System.out.println("Processo " + id + " foi interrompido enquanto usava o recurso.");
         }
     }
 }

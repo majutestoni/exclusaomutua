@@ -25,9 +25,8 @@ public class CoordenadorThread extends ProcessoThread {
             }
             recursosSolicitados.put(idRecurso, solicitantes);
             System.out.println("Processo " + idThread + " entrou na fila para o recurso " + idRecurso);
-            return null; // Não pode usar o recurso ainda
+            return null;
         } else {
-            // O recurso está disponível
             recursosEmUso.put(idRecurso, idThread);
             System.out.println("Processo " + idThread + " obteve o recurso " + idRecurso);
             return "Recurso liberado";

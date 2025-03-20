@@ -33,16 +33,15 @@ public class Main {
             threads.put(novoId, novoProcessoThread);
             Thread thread = new Thread(novoProcessoThread);
             thread.start();
+            System.out.println("Nova thread: " + novoId);
         }, 1, 5, TimeUnit.SECONDS);
 
         // scheduler usado para derrubar e definir novo coordenador
         scheduler.scheduleAtFixedRate(() -> {
             if (!threads.isEmpty()) {
                 recursosEmUso = coordenadorThread.getRecursosEmUso();
-                // Interrompe o coordenador atual
                 System.out.println("Derrubando coordenador: " + coordenadorThread.getId());
-                ProcessoThread processoToInterrupt = threads.get(coordenadorThread.getId());
-                Thread threadToInterrupt = new Thread(processoToInterrupt);
+                Thread threadToInterrupt = threads.get(coordenadorThread.getId());
                 threadToInterrupt.interrupt();
                 threads.remove(coordenadorThread.getId());
 
@@ -53,9 +52,11 @@ public class Main {
                     coordenadorThread = new CoordenadorThread(idNovoCoordenador, recursosEmUso);
 
                     System.out.println("Novo coordenador: " + idNovoCoordenador);
+
+
                 }
             }
-        }, 1, 30, TimeUnit.SECONDS);
+        }, 1, 20, TimeUnit.SECONDS);
 
 
         // Para recurso ser solicitado
