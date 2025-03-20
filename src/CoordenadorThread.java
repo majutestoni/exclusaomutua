@@ -3,23 +3,22 @@ import java.util.HashMap;
 import java.util.List;
 
 public class CoordenadorThread extends ProcessoThread {
-    private HashMap<Integer, Integer> recursosEmUso = new HashMap<>();
-    private HashMap<Integer, List<Integer>> recursosSolicitados = new HashMap<>();
+    private HashMap<Long, Long> recursosEmUso = new HashMap<>();
+    private HashMap<Long, List<Long>> recursosSolicitados = new HashMap<>();
 
-    public CoordenadorThread(int id, HashMap<Integer, Integer> recursosEmUso) {
+    public CoordenadorThread(long id, HashMap<Long, Long> recursosEmUso) {
         super(id);
         this.recursosEmUso = recursosEmUso;
         populaRecurso();
     }
 
-    public HashMap<Integer, Integer> getRecursosEmUso() {
+    public HashMap<Long, Long> getRecursosEmUso() {
         return recursosEmUso;
     }
 
-    public synchronized String verificaRecurso(Integer idRecurso, Integer idThread) {
+    public synchronized String verificaRecurso(long idRecurso, long idThread) {
         if (recursosEmUso.containsKey(idRecurso)) {
-            // O recurso está ocupado, então o processo entra na fila
-            List<Integer> solicitantes = recursosSolicitados.get(idRecurso);
+            List<Long> solicitantes = recursosSolicitados.get(idRecurso);
             if (!solicitantes.contains(idThread)) {
                 solicitantes.add(idThread); // Adiciona à fila de solicitantes
             }
@@ -35,13 +34,13 @@ public class CoordenadorThread extends ProcessoThread {
 
 
     // Após o processo liberar o recurso, o coordenador verifica se há algum processo esperando
-    public synchronized void removerProcessoDoRecurso(Integer idRecurso, int id) {
+    public synchronized void removerProcessoDoRecurso(long idRecurso, long id) {
         recursosEmUso.remove(idRecurso); // Remove o recurso da lista de recursos em uso
 
-        List<Integer> solicitantes = recursosSolicitados.get(idRecurso);
+        List<Long> solicitantes = recursosSolicitados.get(idRecurso);
         if (solicitantes != null && !solicitantes.isEmpty()) {
             // Libera o recurso para o próximo processo da fila
-            int proximoProcesso = solicitantes.remove(0); // Pega o próximo processo na fila
+            long proximoProcesso = solicitantes.remove(0); // Pega o próximo processo na fila
             recursosSolicitados.put(idRecurso, solicitantes);
 
             // Atribui o recurso ao próximo processo
@@ -54,7 +53,7 @@ public class CoordenadorThread extends ProcessoThread {
 
     // Inicializa os recursos solicitados (para 5 recursos, por exemplo)
     private void populaRecurso() {
-        for (int i = 1; i < 6; i++) {
+        for (long i = 1; i < 6; i++) {
             recursosSolicitados.put(i, new ArrayList<>());
         }
     }

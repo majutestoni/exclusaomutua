@@ -8,23 +8,25 @@ import java.util.concurrent.TimeUnit;
 
 public class Main {
     private static CoordenadorThread coordenadorThread;
-    static Map<Integer, ProcessoThread> threads = new HashMap<>();
-    static HashMap<Integer, Integer> recursosEmUso = new HashMap<>();
+    static Map<Long, ProcessoThread> threads = new HashMap<>();
+    static HashMap<Long, Long> recursosEmUso = new HashMap<>();
 
     public static void main(String[] args) {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
         // Criação da primeira thread coordenadora
-        int primeiroId = ThreadLocalRandom.current().nextInt(1, 1000);
+        long primeiroId = ThreadLocalRandom.current().nextInt(1, 1000);
+        System.out.println("Nova thread: " + primeiroId);
         ProcessoThread primeiraProcessoThread = new ProcessoThread(primeiroId);
         coordenadorThread = new CoordenadorThread(primeiroId, recursosEmUso);
+        System.out.println("Novo coordenador: " + primeiroId);
         threads.put(primeiroId, primeiraProcessoThread);
         Thread primeiraThread = new Thread(primeiraProcessoThread);
         primeiraThread.start();
 
         // Scheduler usado para criar threads
         scheduler.scheduleAtFixedRate(() -> {
-            int novoId = ThreadLocalRandom.current().nextInt(1, 1000);
+            long novoId = ThreadLocalRandom.current().nextInt(1, 1000);
             while (threads.containsKey(novoId)) {
                 novoId = ThreadLocalRandom.current().nextInt(1, 1000);
             }
