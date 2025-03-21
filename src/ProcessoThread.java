@@ -27,6 +27,7 @@ public class ProcessoThread {
     protected void TentaUsarRecurso(CoordenadorThread coordenadorThread) {
         scheduler.scheduleAtFixedRate(() -> {
             Recurso recursoASerSolicitado = coordenadorThread.getRandomRecurso();
+
             // Verifica se o recurso está disponível
             Boolean retorno = coordenadorThread.verificaRecurso(recursoASerSolicitado, this);
 
@@ -37,9 +38,8 @@ public class ProcessoThread {
         }, 1, Parametros.TEMPO_TENTATIVA_CONSUMO_RECURSO, TimeUnit.SECONDS);
     }
 
-    private void usaRecurso(Recurso recurso, CoordenadorThread coordenadorThread) {
+    public void usaRecurso(Recurso recurso, CoordenadorThread coordenadorThread) {
         try {
-
             // Tempo de uso do recurso é aleatório entre 5 a 15 segundos
             this.setRecurso(recurso);
 
@@ -56,10 +56,11 @@ public class ProcessoThread {
 
             // Chama o coordenador para remover o processo do recurso e liberar o recurso
             // para o próximo
-            coordenadorThread.removerProcessoDoRecurso(this);
         } catch (Exception e) {
-            System.out.println("Processo " + id + " foi interrompido enquanto usava o recurso." + recurso.getId());
+            System.out.println("Processo " + id + " foi interrompido enquanto usava o recurso." + recurso.getId() + "." + e.getMessage());
+        } finally {
             coordenadorThread.removerProcessoDoRecurso(this);
+            this.setRecurso(null);
         }
     }
 

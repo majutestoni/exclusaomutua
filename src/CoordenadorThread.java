@@ -35,7 +35,7 @@ public class CoordenadorThread extends ProcessoThread {
             if (!solicitantes.contains(thread)) {
                 solicitantes.add(thread); // Adiciona à fila de solicitantes
 
-                System.out.println("Processo " + thread.getId() + " entrou na fila para o recurso " + idRecurso + " Fila =>"
+                System.out.println("Processo " + thread.getId() + " entrou na fila para o recurso " + idRecurso + ". Fila => "
                         + solicitantes.toString());
 
                 recursosSolicitados.put(idRecurso, solicitantes);
@@ -66,12 +66,14 @@ public class CoordenadorThread extends ProcessoThread {
             recursosSolicitados.put(idRecurso, solicitantes);
 
             // Atribui o recurso ao próximo processo
-            recurso.setThread(proximoProcesso);
-            System.out.println(recurso.toString() + " foi liberado para o processo " + proximoProcesso.toString());
-        }
+            System.out.println(recurso.toString() + " foi liberado para o processo " + proximoProcesso.toString()+ ". Fila => "
+            + solicitantes.toString());
 
-        thread.setRecurso(null);
+            recurso.setThread(proximoProcesso);
+            proximoProcesso.usaRecurso(recurso, this);
+        }
     }
+
 
     public Recurso getRandomRecurso() {
         if (recursos.isEmpty()) {
