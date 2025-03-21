@@ -1,38 +1,39 @@
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ProcessoThread extends Thread {
-    private Long id;
+    private final Long id;
 
     public ProcessoThread(Long id) {
         this.id = id;
     }
 
-    public long getId() {
+    public long getProcessoId() {
         return id;
     }
 
     @Override
     public void run() {
-
+        try {
+            while (!Thread.currentThread().isInterrupted()) {
+                Thread.sleep(ThreadLocalRandom.current().nextInt(10000, 25001));
+            }
+        } catch (InterruptedException e) {
+            System.out.println("Processo " + id + " foi interrompido.");
+        }
     }
 
     public void usaRecurso(long idRecurso, CoordenadorThread coordenadorThread) {
-       // try {
+        try {
             int tempoUso = ThreadLocalRandom.current().nextInt(5000, 15000);
             System.out.println("Processo " + id + " está usando o recurso " + idRecurso + " por " + tempoUso + " ms.");
 
-            //Thread.sleep(tempoUso);  // Simula o uso do recurso com tempo aleatório
-        for (int i = 0; i < 100000; i++) {
-
-        }
+            Thread.sleep(tempoUso); // Simula o uso do recurso com tempo aleatório
 
             System.out.println("Processo " + id + " finalizou o uso do recurso " + idRecurso);
-
             coordenadorThread.removerProcessoDoRecurso(idRecurso, id);
 
-    //    } catch (InterruptedException e) {
-            // Caso o processo seja interrompido, ele deve parar o uso do recurso
-       //     System.out.println("Processo " + id + " foi interrompido enquanto usava o recurso.");
-     //   }
+        } catch (InterruptedException e) {
+            System.out.println("Processo " + id + " foi interrompido enquanto usava o recurso.");
+        }
     }
 }

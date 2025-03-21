@@ -3,22 +3,23 @@ import java.util.HashMap;
 import java.util.List;
 
 public class CoordenadorThread extends ProcessoThread {
-    private HashMap<Long, Long> recursosEmUso = new HashMap<>();
-    private HashMap<Long, List<Long>> recursosSolicitados = new HashMap<>();
+    private final HashMap<Long, Long> recursosEmUso;
+    private final HashMap<Long, List<Long>> recursosSolicitados = new HashMap<>();
 
     public CoordenadorThread(long id, HashMap<Long, Long> recursosEmUso) {
         super(id);
-        this.recursosEmUso = recursosEmUso;
+        this.recursosEmUso = new HashMap<>(recursosEmUso);
         populaRecurso();
     }
 
     public HashMap<Long, Long> getRecursosEmUso() {
-        return recursosEmUso;
+        return new HashMap<>(recursosEmUso);
     }
 
     public synchronized String verificaRecurso(long idRecurso, long idThread) {
+        List<Long> solicitantes = recursosSolicitados.getOrDefault(idRecurso, new ArrayList<>());
+
         if (recursosEmUso.containsKey(idRecurso)) {
-            List<Long> solicitantes = recursosSolicitados.get(idRecurso);
             if (!solicitantes.contains(idThread)) {
                 solicitantes.add(idThread); // Adiciona à fila de solicitantes
             }
@@ -32,13 +33,12 @@ public class CoordenadorThread extends ProcessoThread {
         }
     }
 
-
     // Após o processo liberar o recurso, o coordenador verifica se há algum processo esperando
     public synchronized void removerProcessoDoRecurso(long idRecurso, long id) {
         recursosEmUso.remove(idRecurso); // Remove o recurso da lista de recursos em uso
 
-        List<Long> solicitantes = recursosSolicitados.get(idRecurso);
-        if (solicitantes != null && !solicitantes.isEmpty()) {
+        List<Long> solicitantes = recursosSolicitados.getOrDefault(idRecurso, new ArrayList<>());
+        if (!solicitantes.isEmpty()) {
             long proximoProcesso = solicitantes.remove(0);
             recursosSolicitados.put(idRecurso, solicitantes);
 
@@ -46,8 +46,6 @@ public class CoordenadorThread extends ProcessoThread {
             System.out.println("Recurso " + idRecurso + " foi liberado para o processo " + proximoProcesso);
         }
     }
-
-
 
     // Inicializa os recursos solicitados (para 5 recursos, por exemplo)
     private void populaRecurso() {
