@@ -12,7 +12,7 @@ public class ProcessoThread {
     public ProcessoThread(int id, CoordenadorThread coordenadorThread) {
         this.id = id;
         TentaUsarRecurso(coordenadorThread);
-        System.out.println("Nova thread: " + this.getId());
+        System.out.println("Nova thread: " + this.toString());
     }
 
     public int getId() {
@@ -33,14 +33,7 @@ public class ProcessoThread {
             // Se o recurso estiver disponível, usa-o
             if (retorno) {
                 usaRecurso(recursoASerSolicitado, coordenadorThread);
-            } else {
-                // Se o recurso está ocupado, o processo será colocado na fila e tentará
-                // novamente
-                System.out.println("Recurso " + recursoASerSolicitado + " está ocupado. Processo " + this.id
-                        + " tentará novamente.");
-                // Reagendar a tentativa para o processo, sem bloquear o sistema
             }
-
         }, 1, Parametros.TEMPO_TENTATIVA_CONSUMO_RECURSO, TimeUnit.SECONDS);
     }
 
@@ -48,12 +41,13 @@ public class ProcessoThread {
         try {
 
             // Tempo de uso do recurso é aleatório entre 5 a 15 segundos
+            this.setRecurso(recurso);
+
             int tempoUso = getTempoUso();
 
             System.out.println("Processo " + id + " está usando o recurso " + recurso + " por "
                     + tempoUso + " ms.");
-            
-            this.setRecurso(recurso);
+
             // Simula o uso do recurso
             Thread.sleep(tempoUso); // Simula o uso do recurso com tempo aleatório
 
