@@ -14,40 +14,44 @@ public class CoordenadorThread {
         System.out.println("Novo coordenador: " + processo);
     }
 
-    public Boolean VerificaRecurso(Recurso recurso, ProcessoThread thread) {
+    public synchronized Boolean VerificaRecurso(Recurso recurso, ProcessoThread processo) {
         int idRecurso = recurso.getId();
 
         if (recurso.hasThread()) {
 
-            if (thread.hasRecurso())
+            if (processo.hasRecurso())
                 return false;
 
-            // O recurso está ocupado, então o processo entra na fila
-            List<ProcessoThread> solicitantes = recursosSolicitados.get(idRecurso);
+            boolean hasRecurso = recursosSolicitados.containsKey(idRecurso);
 
-            if (solicitantes == null) {
-                solicitantes = new ArrayList<ProcessoThread>();
-            }
-
-            if (!solicitantes.contains(thread)) {
-                solicitantes.add(thread); // Adiciona à fila de solicitantes
-
-                System.out.println("Processo " + thread + " entrou na fila para o recurso " + idRecurso
-                        + ". Fila " + recurso + " => "
-                        + solicitantes);
-
+            if(!hasRecurso){
+                List<ProcessoThread> solicitantes = new ArrayList<ProcessoThread>();
+                solicitantes.add(processo);
+                System.out.println("Processo " + processo + " entrou na fila para o recurso " + idRecurso
+                + ". Fila " + recurso + " => "
+                + solicitantes);
                 recursosSolicitados.put(idRecurso, solicitantes);
-            }
+            }else {
+                List<ProcessoThread> solicitantes = recursosSolicitados.get(idRecurso);
 
+                if (!solicitantes.contains(processo)) {
+                    solicitantes.add(processo);
+                    System.out.println("Processo " + processo + " entrou na fila para o recurso " + idRecurso
+                            + ". Fila " + recurso + " => "
+                            + solicitantes);
+                    recursosSolicitados.put(idRecurso, solicitantes);
+                }
+            }
+            
             return false;
         } else {
-            recurso.setThread(thread);
-            processo.TentaUsarRecurso(this);
+            recurso.setThread(processo);
+            processo.TentaUsarRecurso();
             return true;
         }
     }
 
-    public void RemoverProcessoDoRecurso(ProcessoThread thread) {
+    public synchronized void RemoverProcessoDoRecurso(ProcessoThread thread) {
         Recurso recurso = thread.getRecurso();
         int idRecurso = recurso.getId();
 
@@ -67,11 +71,11 @@ public class CoordenadorThread {
                             + solicitantes);
 
             recurso.setThread(proximoProcesso);
-            proximoProcesso.usaRecurso(recurso, this);
+            proximoProcesso.usaRecurso(recurso);
         }
     }
 
-    public Recurso GetRecusoAleatorio() {
+    public synchronized Recurso GetRecursoAleatorio() {
         if (recursos.isEmpty()) {
             return null;
         }
@@ -81,15 +85,15 @@ public class CoordenadorThread {
         return recursos.get(idRecurso);
     }
 
-    public HashMap<Integer, Recurso> getRecursos() {
+    public synchronized HashMap<Integer, Recurso> getRecursos() {
         return recursos;
     }
 
-    public ProcessoThread getProcesso() {
+    public synchronized ProcessoThread getProcesso() {
         return processo;
     }
 
-    public void setProcesso(ProcessoThread processo) {
+    public synchronized void setProcesso(ProcessoThread processo) {
         this.processo = processo;
     }
 }

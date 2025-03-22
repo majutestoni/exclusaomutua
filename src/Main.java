@@ -18,14 +18,14 @@ class Parametros {
 
 public class Main {
     private static CoordenadorThread coordenadorThread;
-    static Map<Integer, ProcessoThread> threads = new HashMap<>();
+    static Map<Integer, ProcessoThread> processos = new HashMap<>();
     static HashMap<Integer, Recurso> recursos = new HashMap<>();
     private static ScheduledExecutorService scheduler;
 
     private static int CriaNovoProcessoId() {
         int novoId = ThreadLocalRandom.current().nextInt(1, 1000);
 
-        while (threads.containsKey(novoId)) {
+        while (processos.containsKey(novoId)) {
             novoId = ThreadLocalRandom.current().nextInt(1, 1000);
         }
 
@@ -42,41 +42,48 @@ public class Main {
     private static ProcessoThread CriaThread() {
         int novoId = CriaNovoProcessoId();
         ProcessoThread novoProcessoThread = new ProcessoThread(novoId, coordenadorThread);
-        threads.put(novoProcessoThread.getId(), novoProcessoThread);
+        processos.put(novoProcessoThread.getId(), novoProcessoThread);
         return novoProcessoThread;
     }
 
     private static ProcessoThread GetProcessoAleatorio(){
         Random rand = new Random();
-        Integer idNovoCoordenador = (Integer) threads.keySet().toArray()[rand.nextInt(threads.size())];
-        ProcessoThread processo = threads.get(idNovoCoordenador);
+        Integer idNovoCoordenador = (Integer) processos.keySet().toArray()[rand.nextInt(processos.size())];
+        ProcessoThread processo = processos.get(idNovoCoordenador);
 
         return processo;
     }
 
-    private static void SetNovoCoordenador() {
-        if (threads.isEmpty())
+    private synchronized static void SetNovoCoordenadorAleatorio() {
+        if (processos.isEmpty())
             return;
-
-        ProcessoThread processo = GetProcessoAleatorio();
  
-        coordenadorThread = new CoordenadorThread(processo, recursos);
+        coordenadorThread = new CoordenadorThread(GetProcessoAleatorio(), recursos);
+
+        for (ProcessoThread processo : processos.values()) {
+            processo.setCoordenador(coordenadorThread);
+        }
     }
 
     private static void EncerraPrograma() {
-        threads.clear();
+        for (ProcessoThread processo : processos.values()) {
+            processo.EncerraProcesso();
+        }
+        processos.clear();
         scheduler.shutdown();
         System.out.println("Execução finalizada após 3 minutos.");
     }
 
-    private static void TrocaCoordenador() {
-        if (threads.isEmpty())
+    private synchronized static void TrocaCoordenador() {
+        if (processos.isEmpty())
             return;
 
         System.out.println("Derrubando coordenador: " + coordenadorThread.getProcesso().getId());
-        threads.remove(coordenadorThread.getProcesso().getId());
+        ProcessoThread processoCoordenador = coordenadorThread.getProcesso();
 
-        SetNovoCoordenador();
+        processoCoordenador.EncerraProcesso();
+        processos.remove(processoCoordenador.getId());
+        SetNovoCoordenadorAleatorio();
     }
 
     public static void main(String[] args) {
@@ -88,6 +95,7 @@ public class Main {
         // Criação da primeira thread coordenadora
         ProcessoThread primeiroProcesso = CriaThread();
         coordenadorThread = new CoordenadorThread(primeiroProcesso, recursos);
+        primeiroProcesso.setCoordenador(coordenadorThread);
 
         scheduler.scheduleAtFixedRate(() -> {
             CriaThread();

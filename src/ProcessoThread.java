@@ -6,12 +6,14 @@ import java.util.concurrent.TimeUnit;
 public class ProcessoThread {
     private int id;
     private Recurso recurso;
+    private CoordenadorThread coordenador;
 
     ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors()); //
 
     public ProcessoThread(int id, CoordenadorThread coordenadorThread) {
         this.id = id;
-        TentaUsarRecurso(coordenadorThread);
+        coordenador = coordenadorThread;
+        TentaUsarRecurso();
         System.out.println("Nova thread: " + this.toString());
     }
 
@@ -24,19 +26,19 @@ public class ProcessoThread {
                 Parametros.TEMPO_MAXIMO_PROCESSAMENTO * 1000);
     }
 
-    protected void TentaUsarRecurso(CoordenadorThread coordenadorThread) {
+    protected void TentaUsarRecurso() {
         scheduler.scheduleAtFixedRate(() -> {
-            Recurso recursoASerSolicitado = coordenadorThread.GetRecusoAleatorio();
+            Recurso recursoASerSolicitado = coordenador.GetRecursoAleatorio();
 
-            Boolean retorno = coordenadorThread.VerificaRecurso(recursoASerSolicitado, this);
+            Boolean retorno = coordenador.VerificaRecurso(recursoASerSolicitado, this);
 
             if (retorno) {
-                usaRecurso(recursoASerSolicitado, coordenadorThread);
+                usaRecurso(recursoASerSolicitado);
             }
         }, 1, Parametros.TEMPO_TENTATIVA_CONSUMO_RECURSO, TimeUnit.SECONDS);
     }
 
-    public void usaRecurso(Recurso recurso, CoordenadorThread coordenadorThread) {
+    public void usaRecurso(Recurso recurso) {
         try {
             this.setRecurso(recurso);
 
@@ -53,7 +55,7 @@ public class ProcessoThread {
         } catch (Exception e) {
             System.out.println("Processo " + id + " foi interrompido enquanto usava o recurso." + recurso.getId() + "." + e.getMessage());
         } finally {
-            coordenadorThread.RemoverProcessoDoRecurso(this);
+            coordenador.RemoverProcessoDoRecurso(this);
             this.setRecurso(null);
         }
     }
@@ -76,4 +78,15 @@ public class ProcessoThread {
         return "ProcessoThread " + id;
     }
 
+    public void EncerraProcesso(){
+        scheduler.shutdown();
+    }
+
+    public CoordenadorThread getCoordenador() {
+        return coordenador;
+    }
+
+    public void setCoordenador(CoordenadorThread coordenador) {
+        this.coordenador = coordenador;
+    }
 }
