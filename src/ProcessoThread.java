@@ -26,12 +26,10 @@ public class ProcessoThread {
 
     protected void TentaUsarRecurso(CoordenadorThread coordenadorThread) {
         scheduler.scheduleAtFixedRate(() -> {
-            Recurso recursoASerSolicitado = coordenadorThread.getRandomRecurso();
+            Recurso recursoASerSolicitado = coordenadorThread.GetRecusoAleatorio();
 
-            // Verifica se o recurso está disponível
-            Boolean retorno = coordenadorThread.verificaRecurso(recursoASerSolicitado, this);
+            Boolean retorno = coordenadorThread.VerificaRecurso(recursoASerSolicitado, this);
 
-            // Se o recurso estiver disponível, usa-o
             if (retorno) {
                 usaRecurso(recursoASerSolicitado, coordenadorThread);
             }
@@ -40,7 +38,6 @@ public class ProcessoThread {
 
     public void usaRecurso(Recurso recurso, CoordenadorThread coordenadorThread) {
         try {
-            // Tempo de uso do recurso é aleatório entre 5 a 15 segundos
             this.setRecurso(recurso);
 
             int tempoUso = getTempoUso();
@@ -51,15 +48,12 @@ public class ProcessoThread {
             // Simula o uso do recurso
             Thread.sleep(tempoUso); // Simula o uso do recurso com tempo aleatório
 
-            // Após o uso do recurso, o processo notifica o coordenador
             System.out.println("Processo " + id + " finalizou o uso do recurso " + recurso);
 
-            // Chama o coordenador para remover o processo do recurso e liberar o recurso
-            // para o próximo
         } catch (Exception e) {
             System.out.println("Processo " + id + " foi interrompido enquanto usava o recurso." + recurso.getId() + "." + e.getMessage());
         } finally {
-            coordenadorThread.removerProcessoDoRecurso(this);
+            coordenadorThread.RemoverProcessoDoRecurso(this);
             this.setRecurso(null);
         }
     }
@@ -73,7 +67,7 @@ public class ProcessoThread {
         this.recurso = recurso;
     }
 
-    public boolean PossuiRecurso() {
+    public boolean hasRecurso() {
         return recurso != null;
     }
 

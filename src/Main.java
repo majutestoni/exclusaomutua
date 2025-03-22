@@ -13,14 +13,16 @@ class Parametros {
     public static final int TEMPO_TENTATIVA_CONSUMO_RECURSO = 10;
     public static final int TEMPO_CRIACAO_NOVO_PROCESSO = 10;
     public static final int NUMERO_RECURSOS = 1;
-}
+    public static final int TEMPO_EXECUSAO = 180;
+}   
 
 public class Main {
     private static CoordenadorThread coordenadorThread;
     static Map<Integer, ProcessoThread> threads = new HashMap<>();
     static HashMap<Integer, Recurso> recursos = new HashMap<>();
+    private static ScheduledExecutorService scheduler;
 
-    private static int createNewId() {
+    private static int CriaNovoProcessoId() {
         int novoId = ThreadLocalRandom.current().nextInt(1, 1000);
 
         while (threads.containsKey(novoId)) {
@@ -37,56 +39,66 @@ public class Main {
         }
     }
 
-    private static ProcessoThread createThread() {
-        int novoId = createNewId();
+    private static ProcessoThread CriaThread() {
+        int novoId = CriaNovoProcessoId();
         ProcessoThread novoProcessoThread = new ProcessoThread(novoId, coordenadorThread);
+        threads.put(novoProcessoThread.getId(), novoProcessoThread);
         return novoProcessoThread;
     }
 
-    private static void DecideNovoCoordenador() {
+    private static ProcessoThread GetProcessoAleatorio(){
         Random rand = new Random();
         Integer idNovoCoordenador = (Integer) threads.keySet().toArray()[rand.nextInt(threads.size())];
-        coordenadorThread = new CoordenadorThread(idNovoCoordenador, recursos);
+        ProcessoThread processo = threads.get(idNovoCoordenador);
+
+        return processo;
+    }
+
+    private static void SetNovoCoordenador() {
+        if (threads.isEmpty())
+            return;
+
+        ProcessoThread processo = GetProcessoAleatorio();
+ 
+        coordenadorThread = new CoordenadorThread(processo, recursos);
+    }
+
+    private static void EncerraPrograma() {
+        threads.clear();
+        scheduler.shutdown();
+        System.out.println("Execução finalizada após 3 minutos.");
+    }
+
+    private static void TrocaCoordenador() {
+        if (threads.isEmpty())
+            return;
+
+        System.out.println("Derrubando coordenador: " + coordenadorThread.getProcesso().getId());
+        threads.remove(coordenadorThread.getProcesso().getId());
+
+        SetNovoCoordenador();
     }
 
     public static void main(String[] args) {
-        ScheduledExecutorService scheduler = Executors
-                .newScheduledThreadPool(Runtime.getRuntime().availableProcessors()); //
+        scheduler = Executors
+                .newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
 
         PopulaRecursos();
 
         // Criação da primeira thread coordenadora
-        ProcessoThread primeiroProcesso = createThread();
-        coordenadorThread = new CoordenadorThread(primeiroProcesso.getId(), recursos);
-        threads.put(primeiroProcesso.getId(), primeiroProcesso);
+        ProcessoThread primeiroProcesso = CriaThread();
+        coordenadorThread = new CoordenadorThread(primeiroProcesso, recursos);
 
-        // Scheduler usado para criar threads
         scheduler.scheduleAtFixedRate(() -> {
-            ProcessoThread processo = createThread();
-            threads.put(processo.getId(), processo);
+            CriaThread();
         }, Parametros.TEMPO_CRIACAO_NOVO_PROCESSO, Parametros.TEMPO_CRIACAO_NOVO_PROCESSO, TimeUnit.SECONDS);
 
-        // scheduler usado para derrubar e definir novo coordenador
         scheduler.scheduleAtFixedRate(() -> {
-            if (!threads.isEmpty()) {
-
-                System.out.println("Derrubando coordenador: " + coordenadorThread.getId());
-                threads.remove(coordenadorThread.getId());
-                // Verifica se ainda há threads e seleciona uma nova thread aleatória como
-                // coordenadora
-
-                if (!threads.isEmpty()) {
-                    DecideNovoCoordenador();
-                }
-            }
-            ;
+            TrocaCoordenador();
         }, Parametros.TEMPO_MORTE_COORDENADOR, Parametros.TEMPO_MORTE_COORDENADOR, TimeUnit.SECONDS);
 
-        // Scheduler usado para definir o tempo de execução do programa
         scheduler.schedule(() -> {
-            threads.clear();
-            scheduler.shutdown();
-            System.out.println("Execução finalizada após 3 minutos.");
-        }, 3, TimeUnit.MINUTES);
+            EncerraPrograma();
+        }, Parametros.TEMPO_EXECUSAO, TimeUnit.SECONDS);
     }
 }

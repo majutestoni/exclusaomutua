@@ -3,26 +3,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-public class CoordenadorThread extends ProcessoThread {
+public class CoordenadorThread {
+    private ProcessoThread processo;
     private HashMap<Integer, Recurso> recursos = new HashMap<>();
     private HashMap<Integer, List<ProcessoThread>> recursosSolicitados = new HashMap<>();
 
-    public CoordenadorThread(int id, HashMap<Integer, Recurso> recursosEmUso) {
-        super(id, null);
+    public CoordenadorThread(ProcessoThread pProcesso, HashMap<Integer, Recurso> recursosEmUso) {
         this.recursos = recursosEmUso;
-        System.out.println("Novo coordenador: " + this);
+        this.processo = pProcesso;
+        System.out.println("Novo coordenador: " + processo);
     }
 
-    public HashMap<Integer, Recurso> getRecursos() {
-        return recursos;
-    }
-
-    public Boolean verificaRecurso(Recurso recurso, ProcessoThread thread) {
+    public Boolean VerificaRecurso(Recurso recurso, ProcessoThread thread) {
         int idRecurso = recurso.getId();
 
-        if (recurso.possuiThread()) {
+        if (recurso.hasThread()) {
 
-            if (thread.PossuiRecurso())
+            if (thread.hasRecurso())
                 return false;
 
             // O recurso está ocupado, então o processo entra na fila
@@ -45,14 +42,12 @@ public class CoordenadorThread extends ProcessoThread {
             return false;
         } else {
             recurso.setThread(thread);
-            this.TentaUsarRecurso(this);
+            processo.TentaUsarRecurso(this);
             return true;
         }
     }
 
-    // Após o processo liberar o recurso, o coordenador verifica se há algum
-    // processo esperando
-    public void removerProcessoDoRecurso(ProcessoThread thread) {
+    public void RemoverProcessoDoRecurso(ProcessoThread thread) {
         Recurso recurso = thread.getRecurso();
         int idRecurso = recurso.getId();
 
@@ -76,14 +71,25 @@ public class CoordenadorThread extends ProcessoThread {
         }
     }
 
-    public Recurso getRandomRecurso() {
+    public Recurso GetRecusoAleatorio() {
         if (recursos.isEmpty()) {
-            return null; // Retorna null se não houver recursos
+            return null;
         }
 
-        List<Recurso> valores = new ArrayList<>(recursos.values());
-        Random generator = new Random();
-        int index = generator.nextInt(valores.size());
-        return valores.get(index); // Pega um índice aleatório seguro
+        Random rand = new Random();
+        Integer idRecurso = (Integer) recursos.keySet().toArray()[rand.nextInt(recursos.size())];
+        return recursos.get(idRecurso);
+    }
+
+    public HashMap<Integer, Recurso> getRecursos() {
+        return recursos;
+    }
+
+    public ProcessoThread getProcesso() {
+        return processo;
+    }
+
+    public void setProcesso(ProcessoThread processo) {
+        this.processo = processo;
     }
 }

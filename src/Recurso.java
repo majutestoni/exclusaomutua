@@ -15,7 +15,7 @@ public class Recurso {
         this.thread = thread;
     }
 
-    public boolean possuiThread() {
+    public boolean hasThread() {
         return thread != null;
     }
 
