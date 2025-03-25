@@ -13,8 +13,8 @@ class Parametros {
     public static final int TEMPO_TENTATIVA_CONSUMO_RECURSO = 10;
     public static final int TEMPO_CRIACAO_NOVO_PROCESSO = 10;
     public static final int NUMERO_RECURSOS = 4;
-    public static final int TEMPO_EXECUSAO = 300;
-}   
+    public static final int TEMPO_EXECUCAO = 300;
+}
 
 public class Main {
     private static CoordenadorThread coordenadorThread;
@@ -46,7 +46,7 @@ public class Main {
         return novoProcessoThread;
     }
 
-    private static ProcessoThread GetProcessoAleatorio(){
+    private static ProcessoThread GetProcessoAleatorio() {
         Random rand = new Random();
         Integer idNovoCoordenador = (Integer) processos.keySet().toArray()[rand.nextInt(processos.size())];
         ProcessoThread processo = processos.get(idNovoCoordenador);
@@ -57,7 +57,7 @@ public class Main {
     private synchronized static void SetNovoCoordenadorAleatorio() {
         if (processos.isEmpty())
             return;
- 
+
         coordenadorThread = new CoordenadorThread(GetProcessoAleatorio(), recursos);
 
         for (ProcessoThread processo : processos.values()) {
@@ -70,15 +70,15 @@ public class Main {
             processo.EncerraProcesso();
         }
         processos.clear();
-        scheduler.shutdown();
-        System.out.println("Execução finalizada após 3 minutos.");
+        scheduler.shutdownNow();
+        System.out.println("Execução finalizada após " + Parametros.TEMPO_EXECUCAO / 60 + "minutos.");
     }
 
     private synchronized static void TrocaCoordenador() {
         if (processos.isEmpty())
             return;
 
-        System.out.println("Derrubando coordenador: " + coordenadorThread.getProcesso().getId());
+        System.out.println("Derrubando coordenador: " + coordenadorThread.getProcesso());
         ProcessoThread processoCoordenador = coordenadorThread.getProcesso();
 
         processoCoordenador.EncerraProcesso();
@@ -107,6 +107,6 @@ public class Main {
 
         scheduler.schedule(() -> {
             EncerraPrograma();
-        }, Parametros.TEMPO_EXECUSAO, TimeUnit.SECONDS);
+        }, Parametros.TEMPO_EXECUCAO, TimeUnit.SECONDS);
     }
 }

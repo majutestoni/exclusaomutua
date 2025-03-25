@@ -14,7 +14,7 @@ public class ProcessoThread {
         this.id = id;
         coordenador = coordenadorThread;
         TentaUsarRecurso();
-        System.out.println("Nova thread: " + this.toString());
+        System.out.println("Novo Processo: " + this);
     }
 
     public int getId() {
@@ -40,20 +40,22 @@ public class ProcessoThread {
 
     public void usaRecurso(Recurso recurso) {
         try {
+            System.out.println(this + " obteve o " + recurso);
+
             this.setRecurso(recurso);
 
             int tempoUso = getTempoUso();
 
-            System.out.println("Processo " + id + " está usando o recurso " + recurso + " por "
+            System.out.println(this + " está usando o " + recurso + " por "
                     + tempoUso + " ms.");
 
             // Simula o uso do recurso
             Thread.sleep(tempoUso); // Simula o uso do recurso com tempo aleatório
 
-            System.out.println("Processo " + id + " finalizou o uso do recurso " + recurso);
+            System.out.println(this + " finalizou o uso do " + recurso);
 
         } catch (Exception e) {
-            System.out.println("Processo " + id + " foi interrompido enquanto usava o recurso." + recurso.getId() + "." + e.getMessage());
+            System.out.println(this + " foi interrompido enquanto usava o " + recurso + "." + e.getMessage());
         } finally {
             coordenador.RemoverProcessoDoRecurso(this);
             this.setRecurso(null);
@@ -65,7 +67,6 @@ public class ProcessoThread {
     }
 
     public void setRecurso(Recurso recurso) {
-        System.out.println("Processo " + this.getId() + " obteve o recurso " + recurso.getId());
         this.recurso = recurso;
     }
 
@@ -78,8 +79,8 @@ public class ProcessoThread {
         return "ProcessoThread " + id;
     }
 
-    public void EncerraProcesso(){
-        scheduler.shutdown();
+    public void EncerraProcesso() {
+        scheduler.shutdownNow();
     }
 
     public CoordenadorThread getCoordenador() {

@@ -27,7 +27,7 @@ public class CoordenadorThread {
             if(!hasRecurso){
                 List<ProcessoThread> solicitantes = new ArrayList<ProcessoThread>();
                 solicitantes.add(processo);
-                System.out.println("Processo " + processo + " entrou na fila para o recurso " + idRecurso
+                System.out.println(processo + " entrou na fila para o " + recurso
                 + ". Fila " + recurso + " => "
                 + solicitantes);
                 recursosSolicitados.put(idRecurso, solicitantes);
@@ -36,7 +36,7 @@ public class CoordenadorThread {
 
                 if (!solicitantes.contains(processo)) {
                     solicitantes.add(processo);
-                    System.out.println("Processo " + processo + " entrou na fila para o recurso " + idRecurso
+                    System.out.println(processo + " entrou na fila para o " + recurso
                             + ". Fila " + recurso + " => "
                             + solicitantes);
                     recursosSolicitados.put(idRecurso, solicitantes);
@@ -60,12 +60,10 @@ public class CoordenadorThread {
         List<ProcessoThread> solicitantes = recursosSolicitados.get(idRecurso);
 
         if (solicitantes != null && !solicitantes.isEmpty()) {
-            // Libera o recurso para o próximo processo da fila
-            ProcessoThread proximoProcesso = solicitantes.remove(0); // Pega o próximo processo na fila
+            ProcessoThread proximoProcesso = solicitantes.remove(0);
 
             recursosSolicitados.put(idRecurso, solicitantes);
 
-            // Atribui o recurso ao próximo processo
             System.out
                     .println(recurso + " foi liberado para o processo " + proximoProcesso + ". Fila " + recurso + " => "
                             + solicitantes);
