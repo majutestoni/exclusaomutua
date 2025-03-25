@@ -8,12 +8,12 @@ import java.util.concurrent.TimeUnit;
 
 class Parametros {
     public static final int TEMPO_MORTE_COORDENADOR = 60;
-    public static final int TEMPO_MINIMO_PROCESSAMENTO = 10;
+    public static final int TEMPO_MINIMO_PROCESSAMENTO = 5;
     public static final int TEMPO_MAXIMO_PROCESSAMENTO = 15;
     public static final int TEMPO_TENTATIVA_CONSUMO_RECURSO = 10;
     public static final int TEMPO_CRIACAO_NOVO_PROCESSO = 10;
-    public static final int NUMERO_RECURSOS = 1;
-    public static final int TEMPO_EXECUSAO = 180;
+    public static final int NUMERO_RECURSOS = 4;
+    public static final int TEMPO_EXECUSAO = 300;
 }   
 
 public class Main {
