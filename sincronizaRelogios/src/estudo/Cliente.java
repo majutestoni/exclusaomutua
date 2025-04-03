@@ -10,7 +10,7 @@ public class Cliente {
 
     public static void main(String[] args) {
         try {
-            Socket cliente = new Socket("201.54.201.81", 907);
+            Socket cliente = new Socket("localhost", 907);
             System.out.println("Cliente conectado com o servidor");
 
             Scanner teclado = new Scanner(System.in);
