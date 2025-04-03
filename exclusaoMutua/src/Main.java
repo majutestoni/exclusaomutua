@@ -12,7 +12,7 @@ class Parametros {
     public static final int TEMPO_MAXIMO_PROCESSAMENTO = 15;
     public static final int TEMPO_TENTATIVA_CONSUMO_RECURSO = 10;
     public static final int TEMPO_CRIACAO_NOVO_PROCESSO = 10;
-    public static final int NUMERO_RECURSOS = 4;
+    public static final int NUMERO_RECURSOS = 1;
     public static final int TEMPO_EXECUCAO = 300;
 }
 

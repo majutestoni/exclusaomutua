@@ -26,7 +26,7 @@ public class ProcessoThread {
                 Parametros.TEMPO_MAXIMO_PROCESSAMENTO * 1000);
     }
 
-    protected void TentaUsarRecurso() {
+    protected void schedulerTentaUsarRecurso() {
         scheduler.scheduleAtFixedRate(() -> {
             Recurso recursoASerSolicitado = coordenador.GetRecursoAleatorio();
 
